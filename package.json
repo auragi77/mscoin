@@ -1,0 +1,13 @@
+{
+  "name": "mscoin",
+  "version": "1.0.0",
+  "description": "https://github.com/auragi77/mscoin",
+  "main": "src/server.js",
+  "repository": "https://github.com/auragi77/mscoin",
+  "author": "kms",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "crypto-js": "^3.1.9-1"
+  }
+}
