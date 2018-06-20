@@ -1,3 +1,5 @@
+const  CryptoJS = require("crypto-js");
+
 class Block{
     constructor(index, hash, previousHash, timestamp, data){
         this.index = index;
@@ -18,4 +20,71 @@ const genesisBlock = new Block(
 
 let blockchain = [genesisBlock];
 
-console.log(blockchain);
+const getLastBlock = () => blockchain[blockchain.length -1];
+
+const getTimestamp = () => new Date().getTime()/ 1000;
+
+const createHash = (index, previousHash, timestamp,data) =>
+    CryptoJS.SHA256(index + previousHash + timestamp +JSON.stringify(data)).toString();
+
+const createNewBlock = data =>{
+    const previousBlock = getLastBlock();
+    const newBlockIndex = previousBlock.index +1;
+    const newTimestamp = getTimestamp();
+    const newHash = createHash(newBlockIndex,previousBlock.hash,newTimestamp,data);
+    const newBlock = new Block(
+        newBlockIndex,
+        newHash,
+        previousBlock.hash,
+        newTimestamp,
+        data
+    );
+
+}
+
+const getBlocksHash = block =>
+    createHash(block.index, block.previousHash, block.timestamp,block.data);
+
+const isNewBlockValid =(candidateBlock, latestBlock) =>{
+    if(!isNewStructureValid(candidateBlock)){
+        console.log("The candidate block structure is not valid");
+        return false;
+    }else if (latestBlock.index +1 !== candidateBlock.index){  // index check
+        console.log("The candidate block doesn't have a valid indes");
+        return false;
+    }else if(latestBlock.hash !== candidateBlock.previousHash){  // hash check
+        console.log("The previousHash of the candidate block is not the hash of the lastest block");
+        return false;
+    }else if(getBlocksHash(candidateBlock) !== candidateBlock.hash){
+        console.log("The hash of this block is invalid");
+        return false;
+    }
+    return true;
+}
+
+const isNewStructureValid = block =>{
+    reutrn(
+        typeof block.index === "number" &&
+        typeof block.hash === "string" &&
+        typeof block.previousBlock === "string" &&
+        typeof block.timestamp ==="number" &&
+        typeof block.data === "string"
+    );
+};
+
+const isChainValid =(candidateChain) =>{
+    const isGenesisValid = block =>{
+        return JSON.stringify(block) === JSON.stringify(genesisBlock);
+    };
+    if (!isGenesisValid(candidateChain[0])){
+        console.log("The candidateChains's genesisBlock is not the same as our genesisBlock");
+        return false;
+    }
+    for (let i=1;i < candidateChain.length;i++){
+        console.log(candidateBlock[i].previousHash +"   "+ candidateBlock[i-1].hash );
+        if(!isNewBlockValid(candidateChain[i],candidateChain[i - 1])){         
+            return false;
+        }
+    }
+    return true;
+}
