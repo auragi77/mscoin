@@ -3,7 +3,7 @@ const  CryptoJS = require("crypto-js");
 class Block{
     constructor(index, hash, previousHash, timestamp, data){
         this.index = index;
-        this.index = hash;
+        this.hash = hash;
         this.previousHash = previousHash;
         this.timestamp = timestamp;
         this.data = data;
@@ -22,7 +22,9 @@ let blockchain = [genesisBlock];
 
 const getLastBlock = () => blockchain[blockchain.length -1];
 
-const getTimestamp = () => new Date().getTime()/ 1000;
+const getTimestamp = () => new Date().getTime() /1000;
+
+const getBlockchain = () => blockchain;
 
 const createHash = (index, previousHash, timestamp,data) =>
     CryptoJS.SHA256(index + previousHash + timestamp +JSON.stringify(data)).toString();
@@ -31,7 +33,7 @@ const createNewBlock = data =>{
     const previousBlock = getLastBlock();
     const newBlockIndex = previousBlock.index +1;
     const newTimestamp = getTimestamp();
-    const newHash = createHash(newBlockIndex,previousBlock.hash,newTimestamp,data);
+    const newHash = createHash(newBlockIndex, previousBlock.hash, newTimestamp, data);
     const newBlock = new Block(
         newBlockIndex,
         newHash,
@@ -39,6 +41,9 @@ const createNewBlock = data =>{
         newTimestamp,
         data
     );
+    console.log(newBlock);
+    addBlockToChain(newBlock);
+    return newBlock;
 
 }
 
@@ -63,10 +68,15 @@ const isNewBlockValid =(candidateBlock, latestBlock) =>{
 }
 
 const isNewStructureValid = block =>{
-    reutrn(
+    console.log(typeof block.index === "number");
+    console.log(typeof block.hash === "string");
+    console.log(typeof block.previousHash === "string");
+    console.log(typeof block.timestamp ==="number");
+    console.log(typeof block.data === "string");
+    return(
         typeof block.index === "number" &&
         typeof block.hash === "string" &&
-        typeof block.previousBlock === "string" &&
+        typeof block.previousHash === "string" &&
         typeof block.timestamp ==="number" &&
         typeof block.data === "string"
     );
@@ -87,4 +97,28 @@ const isChainValid =(candidateChain) =>{
         }
     }
     return true;
-}
+};
+
+const replaceChain = candidateBlock =>{
+    if(isChainValid(candidateBlock) && candidateBlock.length > getBlockchain.length){
+        blockchain = candidateBlock;
+        return true;
+    }else{
+        return false;
+    }
+};
+
+
+const addBlockToChain = candidateBlock =>{
+    if(isNewBlockValid(candidateBlock, getLastBlock())){
+        getBlockchain().push(candidateBlock);
+        return true;
+    }else{
+        return false;
+    }
+};
+
+module.exports={
+    getBlockchain,
+    createNewBlock
+};
